@@ -24,7 +24,9 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { Input } from "@/components/ui/input";
-import { SearchIcon } from "lucide-react";
+import { PlusCircleIcon, SearchIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -60,7 +62,8 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<>
-			<div>
+			<div className="flex items-center justify-between">
+        {/* Search Input */}
 				<div className="relative flex items-center py-4">
 					<Input
 						placeholder="Filter names..."
@@ -79,6 +82,13 @@ export function DataTable<TData, TValue>({
 
           <SearchIcon className="absolute left-2" />
 				</div>
+
+        {/* Add Product Button */}
+        <Button type="button" asChild>
+          <Link href={'/admin/inventory/create'}>
+            <PlusCircleIcon />Add Product
+          </Link>
+        </Button>
 			</div>
 			<div className="rounded-md border mb-2">
 				<Table>
