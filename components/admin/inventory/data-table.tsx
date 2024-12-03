@@ -1,15 +1,17 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 import {
 	ColumnDef,
+	ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
+	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
 	SortingState,
 	useReactTable,
-  VisibilityState,
+	VisibilityState,
 } from "@tanstack/react-table";
 
 import {
@@ -21,6 +23,8 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { Input } from "@/components/ui/input";
+import { SearchIcon } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -31,29 +35,51 @@ export function DataTable<TData, TValue>({
 	columns,
 	data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] =
+		React.useState<ColumnFiltersState>([]);
+	const [columnVisibility, setColumnVisibility] =
+		React.useState<VisibilityState>({});
 
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    state: {
-      sorting,
-      columnVisibility
-    },
+		onSortingChange: setSorting,
+		getSortedRowModel: getSortedRowModel(),
+		onColumnVisibilityChange: setColumnVisibility,
+		onColumnFiltersChange: setColumnFilters,
+		getFilteredRowModel: getFilteredRowModel(),
+		state: {
+			sorting,
+			columnVisibility,
+			columnFilters,
+		},
 	});
 
 	return (
 		<>
-      <div>
-        
-      </div>
+			<div>
+				<div className="relative flex items-center py-4">
+					<Input
+						placeholder="Filter names..."
+						value={
+							(table
+								.getColumn("name")
+								?.getFilterValue() as string) ?? ""
+						}
+						onChange={(event) =>
+							table
+								.getColumn("name")
+								?.setFilterValue(event.target.value)
+						}
+						className="pl-10 max-w-sm shadow-md"
+					/>
+
+          <SearchIcon className="absolute left-2" />
+				</div>
+			</div>
 			<div className="rounded-md border mb-2">
 				<Table>
 					<TableHeader className="data-table-header">
