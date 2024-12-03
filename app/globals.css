@@ -104,3 +104,7 @@ body {
 		@apply text-sm text-muted-foreground;
 	}
 }
+
+.admin-content {
+	@apply px-4 pt-8;
+}

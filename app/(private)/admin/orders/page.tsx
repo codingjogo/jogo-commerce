@@ -1,7 +1,7 @@
-export default function Admin() {
+export default function Orders() {
 	return (
-		<section>
-			<h1>Admin Dashboard</h1>
+		<section className="admin-content">
+			<h1>Orders</h1>
 
 			<div className="content">
 				<h2>Content here</h2>
