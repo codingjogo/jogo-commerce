@@ -9,7 +9,7 @@ import {
 import { signUpSchema, TSignUp } from "@/lib/schemas/signUpSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 
