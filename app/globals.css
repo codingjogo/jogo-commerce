@@ -108,3 +108,17 @@ body {
 .admin-content {
 	@apply px-4 pt-8;
 }
+
+.admin-content .content {
+	@apply pt-12;
+}
+
+.data-table-header {
+	@apply bg-foreground;
+}
+.data-table-header-tr {
+	@apply hover:bg-foreground
+}
+.data-table-head {
+	@apply text-background;
+}
