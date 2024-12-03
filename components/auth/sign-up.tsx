@@ -6,13 +6,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import React from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { signUpSchema, TSignUp } from "@/lib/schemas/signUpSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
-
 import {
 	Form,
 	FormControl,
@@ -22,12 +22,10 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
 const SignUpForm = () => {
-  const router = useRouter();
+	const router = useRouter();
 
 	const form = useForm<TSignUp>({
 		resolver: zodResolver(signUpSchema),
@@ -45,15 +43,15 @@ const SignUpForm = () => {
 			const res = await axios.post("/api/auth/sign-up", values);
 
 			if (res.status === 200) {
-				toast.success('Sign Up Success')
+				toast.success("Sign Up Success");
 				form.reset();
 
-        setTimeout(() => {
-          router.refresh();
-          router.push('/')
-        }, 1000)
+				setTimeout(() => {
+					router.refresh();
+					router.push("/");
+				}, 1000);
 			} else {
-				toast.error('Please try again')
+				toast.error("Please try again");
 			}
 		} catch (err) {
 			console.log("SUBMIT HANDLER ERROR SIGN UP", err);
@@ -62,11 +60,11 @@ const SignUpForm = () => {
 
 	return (
 		<>
-			<Toaster 
-        toastOptions={{
-          duration: 900,
-        }}
-      />
+			<Toaster
+				toastOptions={{
+					duration: 900,
+				}}
+			/>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
