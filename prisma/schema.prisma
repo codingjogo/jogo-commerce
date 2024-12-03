@@ -17,3 +17,67 @@ model user {
   last_name  String
   email      String    @unique
 }
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model category {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+  name       String
+  slug       String
+  product    product[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model product {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime?       @db.Timestamptz(6)
+  name          String
+  slug          String
+  sku           String          @unique
+  description   String?
+  status        String
+  category_id   String          @db.Uuid
+  price         Float           @db.Real
+  category      category        @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  variant_color variant_color[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model variant_color {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at   DateTime       @default(now()) @db.Timestamptz(6)
+  color        String
+  images       String[]
+  product_id   String         @db.Uuid
+  product      product        @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant_size variant_size[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model variant_size {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at       DateTime      @default(now()) @db.Timestamptz(6)
+  size             COLOR_SIZES?
+  stock            Int
+  variant_color_id String        @db.Uuid
+  variant_color    variant_color @relation(fields: [variant_color_id], references: [id], onDelete: Cascade)
+}
+
+/// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+enum COLOR_SIZES {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+  XXXL
+  XXXXL
+}
+
+enum PRODUCT_STATUS {
+  ACTIVE
+  DISCONTINUED
+}
