@@ -1,16 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import FeaturedProducts from "@/components/home/featured-products";
+import Hero from "@/components/home/hero";
+import ProductGallery from "@/components/home/product-gallery";
 
 export default function Home() {
   return (
-    <section className="container">
-      <h1 className="text-4xl font-extrabold">Hello World</h1>
-      <Card className="max-w-xs">
-        <CardContent className="p-4 grid gap-2">
-        <Button>Hello Button!</Button>
-        <Button variant={'secondary'}>Secondary</Button>
-        </CardContent>
-      </Card>
-    </section>
+    <>
+      <Hero />
+      <FeaturedProducts />
+      <ProductGallery />
+    </>
   );
 }
