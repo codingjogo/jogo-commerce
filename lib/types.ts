@@ -1,7 +1,5 @@
 import { Prisma } from "@prisma/client";
 
-export type TBaseUser = Prisma.$userPayload;
-
 export type TProduct = Prisma.productGetPayload<{
   include: {
     variant_color: {
