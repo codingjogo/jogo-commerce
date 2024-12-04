@@ -122,3 +122,9 @@ body {
 .data-table-head {
 	@apply text-background;
 }
+
+/* Custom Utilities */
+/* Paddings */
+.cpy {
+	@apply py-6 lg:py-10
+}
