@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+export type TBaseUser = Prisma.$userPayload;
+
 export type TProduct = Prisma.productGetPayload<{
   include: {
     variant_color: {
@@ -19,5 +21,11 @@ export type TVariantColor = Prisma.variant_colorGetPayload<{
 export type TVariantSize = Prisma.variant_sizeGetPayload<{
   include: {
     variant_color: true
+  }
+}>
+
+export type TAddress = Prisma.addressGetPayload<{
+  include: {
+    user: true
   }
 }>
