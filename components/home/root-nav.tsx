@@ -1,13 +1,18 @@
 "use client";
 
+import React from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import Logo from "@/public/logo.jpg";
-import { HomeIcon, MenuIcon, ShoppingBagIcon } from "lucide-react";
+import {
+	HomeIcon,
+	MenuIcon,
+	ShoppingBagIcon,
+	UserRoundIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
 
 import {
 	Sheet,
@@ -18,8 +23,25 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUser } from "@clerk/nextjs";
+
 const RootNav = () => {
-  const [open, setOpen] = React.useState<boolean>(false);
+	const [open, setOpen] = React.useState<boolean>(false);
+
+	const { user } = useUser();
+
+	const userAvatarImg = user?.imageUrl || "";
+
 	const pathname = usePathname();
 
 	const NAV_LINKS = [
@@ -34,6 +56,19 @@ const RootNav = () => {
 			label: "Shop",
 			icon: ShoppingBagIcon,
 			isActive: pathname === "/shop",
+		},
+	];
+
+	const AVATAR_LINKS = [
+		{
+			href: "/profile",
+			label: "Profile",
+			icon: UserRoundIcon,
+		},
+		{
+			href: "/shop/bag",
+			label: "Bag",
+			icon: ShoppingBagIcon,
 		},
 	];
 
@@ -73,6 +108,44 @@ const RootNav = () => {
 							</li>
 						);
 					})}
+					<li>
+						<DropdownMenu>
+							<DropdownMenuTrigger>
+								<Avatar>
+									<AvatarImage src={userAvatarImg} />
+									<AvatarFallback>CN</AvatarFallback>
+								</Avatar>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent>
+								<DropdownMenuLabel>
+									My Account
+								</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{AVATAR_LINKS.map((link) => {
+									const { href, icon: Icon, label } = link;
+
+									return (
+										<DropdownMenuItem key={href} asChild>
+											<Button
+												type="button"
+												className="w-full justify-start cursor-pointer"
+												variant={"ghost"}
+												asChild
+											>
+												<Link
+													href={href}
+													className="flex items-center"
+												>
+													<Icon />
+													{label}
+												</Link>
+											</Button>
+										</DropdownMenuItem>
+									);
+								})}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</li>
 				</ul>
 			</nav>
 
@@ -89,6 +162,52 @@ const RootNav = () => {
 
 					<nav className="py-6">
 						<ul className="flex flex-col items-end gap-12">
+							<li>
+								<DropdownMenu>
+									<DropdownMenuTrigger>
+										<Avatar>
+											<AvatarImage src={userAvatarImg} />
+											<AvatarFallback>CN</AvatarFallback>
+										</Avatar>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										<DropdownMenuLabel>
+											My Account
+										</DropdownMenuLabel>
+										<DropdownMenuSeparator />
+										{AVATAR_LINKS.map((link) => {
+											const {
+												href,
+												icon: Icon,
+												label,
+											} = link;
+
+											return (
+												<DropdownMenuItem
+													key={href}
+													asChild
+												>
+													<Button
+														type="button"
+														className="w-full justify-start cursor-pointer"
+														variant={"ghost"}
+														onClick={() => setOpen(!open)}
+														asChild
+													>
+														<Link
+															href={href}
+															className="flex items-center"
+														>
+															<Icon />
+															{label}
+														</Link>
+													</Button>
+												</DropdownMenuItem>
+											);
+										})}
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</li>
 							{NAV_LINKS.map((link) => {
 								const {
 									href,
@@ -107,7 +226,7 @@ const RootNav = () => {
 												isActive &&
 													"underline underline-offset-4"
 											)}
-                      onClick={() => setOpen(!open)}
+											onClick={() => setOpen(!open)}
 											asChild
 										>
 											<Link href={href}>
