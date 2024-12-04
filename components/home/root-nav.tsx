@@ -191,7 +191,9 @@ const RootNav = () => {
 														type="button"
 														className="w-full justify-start cursor-pointer"
 														variant={"ghost"}
-														onClick={() => setOpen(!open)}
+														onClick={() =>
+															setOpen(!open)
+														}
 														asChild
 													>
 														<Link
