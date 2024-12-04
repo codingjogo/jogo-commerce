@@ -31,7 +31,7 @@ const featuredProducts = [
 
 export default function FeaturedProducts() {
 	return (
-		<section className="py-16 px-4">
+		<section className="bg-foreground text-background py-16 px-4">
 			<h2 className="text-2xl font-semibold mb-8 text-center border-b-0">
 				Featured Products
 			</h2>
