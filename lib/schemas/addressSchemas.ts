@@ -3,8 +3,7 @@ import { z } from "zod";
 export const addressSchema = z.object({
 	id: z.string().uuid().optional(),
 	user_id: z.string().uuid(),
-	created_at: z.date().optional(),
-	updated_at: z.date().optional(),
+	updated_at: z.date().nullable().optional(),
 	house_number: z.string().min(1, "house number is required"),
 	street: z.string().min(1, "street is required"),
 	barangay: z.string().min(1, "barangay is required"),
