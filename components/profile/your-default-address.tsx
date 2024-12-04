@@ -1,4 +1,6 @@
-import { TAddress } from "@/lib/types";
+'use client';
+
+import { TAddressWithUser } from "@/lib/types";
 import React from "react";
 import {
 	Card,
@@ -8,9 +10,14 @@ import {
 	CardTitle,
 } from "../ui/card";
 import { capitalizeWords } from "@/lib/helpers";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { PencilIcon } from "lucide-react";
 
-const YourDefaultAddress = ({ address }: { address: TAddress }) => {
+const YourDefaultAddress = ({ address }: { address: TAddressWithUser }) => {
+
 	const {
+		id: addressId,
 		house_number,
 		street,
 		barangay,
@@ -30,18 +37,30 @@ const YourDefaultAddress = ({ address }: { address: TAddress }) => {
 
 			<Card>
 				<CardHeader>
-					<CardTitle>{fullName}</CardTitle>
+					<CardTitle className="flex items-center justify-between">
+					<div>
+						{fullName}
+					</div>
+					<Button type="button" variant={'outline'} asChild>
+						<Link href={`/profile/addresses/${addressId}/edit`}>
+							<PencilIcon />
+						</Link>
+					</Button>
+					</CardTitle>
 					<CardDescription>{email}</CardDescription>
 				</CardHeader>
-				<CardContent>
-					{is_default && (
-						<>
-							<span className="text-muted-foreground">
-								(Default)
-							</span>
-						</>
-					)}{" "}
-					{currAddress}
+				<CardContent className="flex items-center justify-between">
+					<div>
+						{is_default && (
+							<>
+								<span className="text-muted-foreground">
+									(Default)
+								</span>
+							</>
+						)}{" "}
+						{currAddress}
+					</div>
+					
 				</CardContent>
 			</Card>
 		</section>

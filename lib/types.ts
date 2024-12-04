@@ -22,7 +22,7 @@ export type TVariantSize = Prisma.variant_sizeGetPayload<{
   }
 }>
 
-export type TAddress = Prisma.addressGetPayload<{
+export type TAddressWithUser = Prisma.addressGetPayload<{
   include: {
     user: true
   }
