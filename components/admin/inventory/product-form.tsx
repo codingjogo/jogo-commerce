@@ -46,15 +46,17 @@ import { stringToSlug } from "@/lib/helpers";
 import { category } from "@prisma/client";
 
 export default function ProductForm({
+	product,
 	categories,
 }: {
+	product?: TProductFormValues | null;
 	categories: category[];
 }) {
 	const router = useRouter();
 
 	const form = useForm<TProductFormValues>({
 		resolver: zodResolver(productSchema),
-		defaultValues: {
+		defaultValues: product ? product : {
 			name: "",
 			slug: "",
 			sku: "",
@@ -95,25 +97,35 @@ export default function ProductForm({
 	const isSubmitting = form.formState.isSubmitting;
 
 	const onSubmit: SubmitHandler<TProductFormValues> = async (
-		values: TProductFormValues
-	) => {
-		try {
-			const res = await axios.post('/api/admin/inventory', values)
+    values: TProductFormValues
+  ) => {
+    try {
+      const url = product
+        ? `/api/admin/inventory/${product.id}` // Update specific product
+        : `/api/admin/inventory`; // Create new product
 
-			if (res.status === 201) {
-				toast.success("Product created successfully!");
-        
-				setTimeout(() => {
-					router.refresh();
-					router.push("/admin/inventory");
-				}, 3000)
-			}
+      const method = product ? "put" : "post"; // Dynamic HTTP method
 
-		} catch (error) {
-			console.error("Error while submitting the product:", error);
-			toast.error("An error occurred while submitting the product.");
-		}
-	};
+      const res = await axios({
+        method,
+        url,
+        data: values,
+      });
+
+      if (res.status === 201 || res.status === 200) {
+        const action = product ? "updated" : "created";
+        toast.success(`Product ${action} successfully!`);
+
+        setTimeout(() => {
+          router.refresh();
+          router.push("/admin/inventory");
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error while submitting the product:", error);
+      toast.error("An error occurred while submitting the product.");
+    }
+  };
 
 	React.useEffect(() => {
 		form.setValue("slug", stringToSlug(watchName));
@@ -344,7 +356,8 @@ export default function ProductForm({
 					<Separator className="my-4" />
 
 					<Button type="submit" disabled={isSubmitting}>
-						{isSubmitting ? "Creating..." : "Create Product"}
+						{isSubmitting && "Submitting..."}
+						{product ? 'Update' : "Create"}
 					</Button>
 				</form>
 			</Form>
