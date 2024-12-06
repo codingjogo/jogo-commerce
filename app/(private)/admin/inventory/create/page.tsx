@@ -8,8 +8,11 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import prisma from "@/lib/db";
 
-export default function InventoryCreate() {
+export default async function InventoryCreate() {
+	const categories = await prisma.category.findMany()
+
 	return (
 		<section className="admin-content">
 			<div className="grid gap-4">
@@ -29,7 +32,7 @@ export default function InventoryCreate() {
 			</div>
 
 			<div className="content">
-				<ProductForm />
+				<ProductForm categories={categories} />
 			</div>
 		</section>
 	);

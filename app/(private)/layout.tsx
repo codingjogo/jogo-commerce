@@ -8,7 +8,7 @@ export default function AdminLayout({
 	return (
 		<div className="flex gap-4">
 			<AdminNav />
-			<main className="flex-1 bg-background h-screen overflow-y-scroll">
+			<main className="flex-1 bg-background overflow-y-scroll">
 				{children}
 			</main>
 		</div>

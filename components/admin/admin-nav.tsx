@@ -48,7 +48,7 @@ const AdminNav = () => {
 	];
 
 	return (
-		<aside className="w-64 p-2 bg-background h-screen flex flex-col gap-2">
+		<aside className="w-64 p-2 bg-background h-full flex flex-col gap-2">
 			{/* Logo Image */}
 			<div className="logo relative w-full aspect-square">
 				<Image
