@@ -68,7 +68,7 @@ export default function ProductForm({
 					images: [],
 					variant_size: [
 						{
-							size: "" as COLOR_SIZES,
+							size: null,
 							stock: 0,
 							status: "IN_STOCK" as SIZE_STATUS,
 						},
@@ -284,7 +284,7 @@ export default function ProductForm({
 											<FormItem>
 												<FormLabel>Color</FormLabel>
 												<FormControl>
-													<Input {...field} />
+													<Input placeholder="Red" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>

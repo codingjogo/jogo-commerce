@@ -24,7 +24,7 @@ export enum SIZE_STATUS {
 
 export const variantSizeSchema = z.object({
 	id: z.string().uuid().optional(),
-	size: z.nativeEnum(COLOR_SIZES),
+	size: z.nativeEnum(COLOR_SIZES).nullable(),
 	stock: z.coerce.number().min(1, "stock is required"),
 	status: z.nativeEnum(SIZE_STATUS),
 	variant_color_id: z.string().uuid().optional(),
