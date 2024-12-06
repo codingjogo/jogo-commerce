@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import React from "react";
+import {
+	SubmitHandler,
+	useFieldArray,
+	useForm,
+	useWatch,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -24,90 +28,49 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { CldUploadWidget } from "next-cloudinary";
-import Image from "next/image";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
+import { PlusCircleIcon } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { TrashIcon } from "lucide-react";
+	COLOR_SIZES,
+	PRODUCT_STATUS,
+	productSchema,
+	SIZE_STATUS,
+	TProductFormValues,
+} from "@/lib/schemas/productSchemas";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import VariantImages from "./variant-images";
+import VariantSizes from "./variant-sizes";
+import { stringToSlug } from "@/lib/helpers";
+import { category } from "@prisma/client";
 
-enum COLOR_SIZES {
-  XS = "XS",
-S = "S",
-M = "M",
-L = "L",
-XL = "XL",
-XXL = "XXL",
-XXXL = "XXXL",
-XXXXL = "XXXXL",
-}
-
-// Define the product schema
-const productSchema = z.object({
-	name: z.string().min(2, "Name must be at least 2 characters"),
-	slug: z.string().min(2, "Slug must be at least 2 characters"),
-	sku: z.string().min(2, "SKU must be at least 2 characters"),
-	description: z.string().optional(),
-	status: z.enum(["ACTIVE", "DISCONTINUED"]),
-	category_id: z.string().uuid(),
-	price: z.number().positive("Price must be positive"),
-	variant_colors: z.array(
-		z.object({
-			color: z.string().min(1, "at least 1 color"),
-			images: z.array(z.string()),
-			variant_sizes: z
-				.array(
-					z.object({
-						size: z.nativeEnum(COLOR_SIZES),
-						stock: z
-							.number()
-							.int()
-							.nonnegative("Stock must be non-negative"),
-					})
-				)
-				.min(1, "at least 1 variant size"),
-		})
-	),
-});
-
-type ProductFormValues = z.infer<typeof productSchema>;
-
-interface ProductFormProps {
-	product?: ProductFormValues;
-}
-
-export default function ProductForm({ product }: ProductFormProps) {
+export default function ProductForm({
+	categories,
+}: {
+	categories: category[];
+}) {
 	const router = useRouter();
-	const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deleteColorIndex, setDeleteColorIndex] = useState<number | null>(null)
-  const [deleteSizeIndices, setDeleteSizeIndices] = useState<{ colorIndex: number, sizeIndex: number } | null>(null)
 
-	const form = useForm<ProductFormValues>({
+	const form = useForm<TProductFormValues>({
 		resolver: zodResolver(productSchema),
-		defaultValues: product || {
+		defaultValues: {
 			name: "",
 			slug: "",
 			sku: "",
 			description: "",
-			status: "ACTIVE",
+			status: "ACTIVE" as PRODUCT_STATUS,
 			category_id: "",
 			price: 0,
-			variant_colors: [
+			variant_color: [
 				{
 					color: "",
 					images: [],
-					variant_sizes: [
+					variant_size: [
 						{
 							size: "" as COLOR_SIZES,
 							stock: 0,
+							status: "IN_STOCK" as SIZE_STATUS,
 						},
 					],
 				},
@@ -115,406 +78,276 @@ export default function ProductForm({ product }: ProductFormProps) {
 		},
 	});
 
-  const handleDeleteColor = (index: number) => {
-    const colors = form.getValues('variant_colors')
-    colors.splice(index, 1)
-    form.setValue('variant_colors', colors)
-    setDeleteColorIndex(null)
-  }
+	const {
+		fields: variantColorFields,
+		append: variantColorAppend,
+		remove: variantColorRemove,
+	} = useFieldArray({
+		control: form.control,
+		name: "variant_color",
+	});
 
-  const handleDeleteSize = (colorIndex: number, sizeIndex: number) => {
-    const sizes = form.getValues(`variant_colors.${colorIndex}.variant_sizes`)
-    sizes.splice(sizeIndex, 1)
-    form.setValue(`variant_colors.${colorIndex}.variant_sizes`, sizes)
-    setDeleteSizeIndices(null)
-  }
+	const watchName = useWatch({
+		control: form.control,
+		name: "name",
+	});
 
-	const onSubmit = async (data: ProductFormValues) => {
-		setIsSubmitting(true);
+	const isSubmitting = form.formState.isSubmitting;
+
+	const onSubmit: SubmitHandler<TProductFormValues> = async (
+		values: TProductFormValues
+	) => {
 		try {
-			const response = await axios.post("/api/inventory", data);
-			if (response.status === 200) {
-				toast("Product created");
+			const res = await axios.post('/api/admin/inventory', values)
+
+			if (res.status === 201) {
+				toast.success("Product created successfully!");
+        
 				setTimeout(() => {
 					router.refresh();
-					router.push("/inventory");
-				}, 3000);
-			} else {
+					router.push("/admin/inventory");
+				}, 3000)
 			}
+
 		} catch (error) {
-			console.log("ERROR WHILE CREATING THE PRODUCT", error);
-			toast("An error occurred while creating the product.");
-		} finally {
-			setIsSubmitting(false);
+			console.error("Error while submitting the product:", error);
+			toast.error("An error occurred while submitting the product.");
 		}
 	};
 
+	React.useEffect(() => {
+		form.setValue("slug", stringToSlug(watchName));
+	}, [form, watchName]);
+
 	return (
-		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				<FormField
-					control={form.control}
-					name="name"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Product Name</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="slug"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Slug</FormLabel>
-							<FormControl>
-								<Input {...field} disabled={true} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="sku"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>SKU</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="description"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Description</FormLabel>
-							<FormControl>
-								<Textarea {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="status"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Status</FormLabel>
-							<Select
-								onValueChange={field.onChange}
-								defaultValue={field.value}
-							>
-								<FormControl>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a status" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="ACTIVE">
-										Active
-									</SelectItem>
-									<SelectItem value="DISCONTINUED">
-										Discontinued
-									</SelectItem>
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="category_id"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Category</FormLabel>
-							<Select
-								onValueChange={field.onChange}
-								defaultValue={field.value}
-							>
-								<FormControl>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a category" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									{/* Replace with actual categories from your database */}
-									<SelectItem value="category-1-uuid">
-										Category 1
-									</SelectItem>
-									<SelectItem value="category-2-uuid">
-										Category 2
-									</SelectItem>
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name="price"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Price</FormLabel>
-							<FormControl>
-								<Input
-									type="number"
-									{...field}
-									onChange={(e) =>
-										field.onChange(
-											parseFloat(e.target.value)
-										)
-									}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				{/* Variant Colors and Sizes */}
-				{form.watch("variant_colors").map((color, colorIndex) => (
-					<div
-						key={colorIndex}
-						className="border p-4 rounded-md space-y-4"
-					>
-						<FormField
-							control={form.control}
-							name={`variant_colors.${colorIndex}.color`}
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Color</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Image Upload */}
-						<div>
-							<FormLabel>Images</FormLabel>
-							<CldUploadWidget
-								uploadPreset="soule-psycle-products"
-								// eslint-disable-next-line
-								onSuccess={(results: any) => {
-									const currentImages =
-										form.getValues(
-											`variant_colors.${colorIndex}.images`
-										) || [];
-									form.setValue(
-										`variant_colors.${colorIndex}.images`,
-										[
-											...currentImages,
-											results.info.public_id,
-										]
-									);
-								}}
-							>
-								{({ open }) => (
-									<Button
-										type="button"
-										onClick={() => open()}
-									>
-										Upload Images
-									</Button>
-								)}
-							</CldUploadWidget>
-							<div className="mt-2 flex flex-wrap gap-2">
-								{form
-									.watch(
-										`variant_colors.${colorIndex}.images`
-									)
-									.map((image, imageIndex) => (
-										<Image
-											key={imageIndex}
-											src={image}
-											alt={`Uploaded ${imageIndex}`}
-											className="w-20 h-20 object-cover"
-										/>
-									))}
-							</div>
-						</div>
-
-						{/* Variant Sizes */}
-						{color.variant_sizes.map((size, sizeIndex) => (
-							<div key={sizeIndex} className="flex gap-4">
-								<FormField
-									control={form.control}
-									name={`variant_colors.${colorIndex}.variant_sizes.${sizeIndex}.size`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Size</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-											>
-												<FormControl>
-													<SelectTrigger>
-														<SelectValue placeholder="Select a size" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{[
-														"XS",
-														"S",
-														"M",
-														"L",
-														"XL",
-														"XXL",
-														"XXXL",
-														"XXXXL",
-													].map((sizeOption) => (
-														<SelectItem
-															key={sizeOption}
-															value={sizeOption}
-															disabled={color.variant_sizes.some(
-																(s, i) =>
-																	i !==
-																		sizeIndex &&
-																	s.size ===
-																		sizeOption
-															)}
-														>
-															{sizeOption}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name={`variant_colors.${colorIndex}.variant_sizes.${sizeIndex}.stock`}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Stock</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													{...field}
-													onChange={(e) =>
-														field.onChange(
-															parseInt(
-																e.target.value,
-																10
-															)
-														)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-<Dialog 
-                  open={deleteSizeIndices?.colorIndex === colorIndex && deleteSizeIndices?.sizeIndex === sizeIndex} 
-                  onOpenChange={() => setDeleteSizeIndices(null)}
-                >
-                  <DialogTrigger asChild>
-                    <Button 
-                      type="button" 
-                      variant="destructive" 
-                      size="icon"
-                      onClick={() => setDeleteSizeIndices({ colorIndex, sizeIndex })}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Are you sure you want to delete this size variant?</DialogTitle>
-                      <DialogDescription>
-                        This action cannot be undone.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button type="button" variant="secondary" onClick={() => setDeleteSizeIndices(null)}>Cancel</Button>
-                      <Button type="button" variant="destructive" onClick={() => handleDeleteSize(colorIndex, sizeIndex)}>Delete</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-							</div>
-						))}
-
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => {
-								const currentSizes = form.getValues(
-									`variant_colors.${colorIndex}.variant_sizes`
-								);
-								form.setValue(
-									`variant_colors.${colorIndex}.variant_sizes`,
-									[...currentSizes, { size: "XS" as COLOR_SIZES, stock: 0 }]
-								);
-							}}
-						>
-							Add Size
-						</Button>
-
-            <Dialog open={deleteColorIndex === colorIndex} onOpenChange={() => setDeleteColorIndex(null)}>
-              <DialogTrigger asChild>
-                <Button type="button" variant="destructive" onClick={() => setDeleteColorIndex(colorIndex)}>
-                  Delete Color Variant
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you sure you want to delete this color variant?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. All sizes and images for this color will be deleted.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button type="button" variant="secondary" onClick={() => setDeleteColorIndex(null)}>Cancel</Button>
-                  <Button type="button" variant="destructive" onClick={() => handleDeleteColor(colorIndex)}>Delete</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-					</div>
-				))}
-
-				<Button
-					type="button"
-					variant="outline"
-					onClick={() => {
-						const currentColors = form.getValues("variant_colors");
-						form.setValue("variant_colors", [
-							...currentColors,
-							{ color: "", images: [], variant_sizes: [] },
-						]);
-					}}
+		<>
+			<Toaster
+				toastOptions={{
+					duration: 2900,
+				}}
+			/>
+			<Form {...form}>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-8 pb-12"
 				>
-					Add Color Variant
-				</Button>
+					<FormField
+						control={form.control}
+						name="name"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Product Name</FormLabel>
+								<FormControl>
+									<Input {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-				<Button type="submit" disabled={isSubmitting}>
-					{isSubmitting ? "Creating..." : "Create Product"}
-				</Button>
-			</form>
-		</Form>
+					<FormField
+						control={form.control}
+						name="slug"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Slug</FormLabel>
+								<FormControl>
+									<Input {...field} disabled={true} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="sku"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>SKU</FormLabel>
+								<FormControl>
+									<Input {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="description"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Description</FormLabel>
+								<FormControl>
+									<Textarea {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="status"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Status</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+									disabled={true}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select a status" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectItem value="ACTIVE">
+											Active
+										</SelectItem>
+										<SelectItem value="DISCONTINUED">
+											Discontinued
+										</SelectItem>
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="category_id"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Category</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select a category" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{/* Replace with actual categories from your database */}
+										{categories.map((c) => {
+											return (
+												<SelectItem
+													key={c.id}
+													value={c.id}
+												>
+													{c.name}
+												</SelectItem>
+											);
+										})}
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="price"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Price</FormLabel>
+								<FormControl>
+									<Input
+										{...field}
+										onChange={(e) =>
+											field.onChange(
+												Number(e.target.value)
+											)
+										}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					{/* Variant Colors */}
+					{variantColorFields.map((v_color, v_color_idx) => {
+						return (
+							<Card key={v_color.id}>
+								<CardContent className="p-6 grid gap-4">
+									<FormField
+										control={form.control}
+										name={`variant_color.${v_color_idx}.color`}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Color</FormLabel>
+												<FormControl>
+													<Input {...field} />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<VariantImages
+										form={form}
+										v_color_idx={v_color_idx}
+									/>
+
+									<VariantSizes
+										form={form}
+										v_color_idx={v_color_idx}
+									/>
+								</CardContent>
+
+								{variantColorFields.length > 1 && (
+									<CardFooter>
+										<Button
+											type="button"
+											variant={"destructive"}
+											onClick={() =>
+												variantColorRemove(v_color_idx)
+											}
+										>
+											<PlusCircleIcon />
+											Remove Variant Color
+										</Button>
+									</CardFooter>
+								)}
+							</Card>
+						);
+					})}
+
+					<Button
+						type="button"
+						variant={"secondary"}
+						onClick={() => {
+							variantColorAppend({
+								color: "",
+								images: [],
+								variant_size: [
+									{
+										size: "" as COLOR_SIZES,
+										stock: 0,
+										status: "IN_STOCK" as SIZE_STATUS,
+									},
+								],
+							});
+						}}
+					>
+						<PlusCircleIcon />
+						Add Variant Color
+					</Button>
+
+					<Separator className="my-4" />
+
+					<Button type="submit" disabled={isSubmitting}>
+						{isSubmitting ? "Creating..." : "Create Product"}
+					</Button>
+				</form>
+			</Form>
+		</>
 	);
 }

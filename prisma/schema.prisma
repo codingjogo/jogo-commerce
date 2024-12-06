@@ -64,6 +64,7 @@ model variant_size {
   size             COLOR_SIZES?
   stock            Int
   variant_color_id String        @db.Uuid
+  status           String
   variant_color    variant_color @relation(fields: [variant_color_id], references: [id], onDelete: Cascade)
 }
 
@@ -98,4 +99,10 @@ enum COLOR_SIZES {
 enum PRODUCT_STATUS {
   ACTIVE
   DISCONTINUED
+}
+
+enum SIZE_STATUS {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
 }
