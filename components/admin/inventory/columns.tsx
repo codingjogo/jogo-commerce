@@ -13,10 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header"
+import { CldImage } from "next-cloudinary"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -44,7 +44,7 @@ export const columns: ColumnDef<Product>[] = [
       
       return (
         <div className="relative w-12 aspect-square">
-          <Image 
+          <CldImage 
             src={productImage}
             alt={`product-image-${productImage}`}
             sizes="48px"
