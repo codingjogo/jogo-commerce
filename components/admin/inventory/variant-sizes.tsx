@@ -48,6 +48,14 @@ const VariantSizes = ({
 		name: `variant_color.${v_color_idx}.variant_size` as any,
 	});
 
+	const watchedCategory = useWatch({
+		control: form.control,
+		name: `category_id`,
+	});
+
+	const isTotebag =
+		watchedCategory === "b83c3f31-78be-4f56-84aa-19ea2a0f276e";
+
 	// eslint-disable-next-line
 	const selectedSizes = watchedSizes?.map((item: any) => item.size) || [];
 
@@ -71,14 +79,25 @@ const VariantSizes = ({
 										<FormLabel>Size</FormLabel>
 										<Select
 											onValueChange={field.onChange}
-											defaultValue={field.value}
+											defaultValue={
+												field.value || "default"
+											}
 										>
 											<FormControl>
-												<SelectTrigger>
+												<SelectTrigger
+													disabled={isTotebag}
+												>
 													<SelectValue placeholder="Select a size" />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
+												<SelectItem
+													key={"no-size"}
+													value={"no-size"}
+													disabled={true}
+												>
+													{"No Size Available"}
+												</SelectItem>
 												{availableSizes.map((size) => (
 													<SelectItem
 														key={size}

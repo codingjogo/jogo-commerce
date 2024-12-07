@@ -28,7 +28,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 import { PlusCircleIcon } from "lucide-react";
 import {
@@ -46,15 +46,17 @@ import { stringToSlug } from "@/lib/helpers";
 import { category } from "@prisma/client";
 
 export default function ProductForm({
+	product,
 	categories,
 }: {
+	product?: TProductFormValues | null;
 	categories: category[];
 }) {
 	const router = useRouter();
 
 	const form = useForm<TProductFormValues>({
 		resolver: zodResolver(productSchema),
-		defaultValues: {
+		defaultValues: product ? product : {
 			name: "",
 			slug: "",
 			sku: "",
@@ -68,7 +70,7 @@ export default function ProductForm({
 					images: [],
 					variant_size: [
 						{
-							size: "" as COLOR_SIZES,
+							size: null,
 							stock: 0,
 							status: "IN_STOCK" as SIZE_STATUS,
 						},
@@ -95,25 +97,35 @@ export default function ProductForm({
 	const isSubmitting = form.formState.isSubmitting;
 
 	const onSubmit: SubmitHandler<TProductFormValues> = async (
-		values: TProductFormValues
-	) => {
-		try {
-			const res = await axios.post('/api/admin/inventory', values)
+    values: TProductFormValues
+  ) => {
+    try {
+      const url = product
+        ? `/api/admin/inventory/${product.id}` // Update specific product
+        : `/api/admin/inventory`; // Create new product
 
-			if (res.status === 201) {
-				toast.success("Product created successfully!");
-        
-				setTimeout(() => {
-					router.refresh();
-					router.push("/admin/inventory");
-				}, 3000)
-			}
+      const method = product ? "put" : "post"; // Dynamic HTTP method
 
-		} catch (error) {
-			console.error("Error while submitting the product:", error);
-			toast.error("An error occurred while submitting the product.");
-		}
-	};
+      const res = await axios({
+        method,
+        url,
+        data: values,
+      });
+
+      if (res.status === 201 || res.status === 200) {
+        const action = product ? "updated" : "created";
+        toast.success(`Product ${action} successfully!`);
+
+        setTimeout(() => {
+          router.refresh();
+          router.push("/admin/inventory");
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error while submitting the product:", error);
+      toast.error("An error occurred while submitting the product.");
+    }
+  };
 
 	React.useEffect(() => {
 		form.setValue("slug", stringToSlug(watchName));
@@ -121,11 +133,6 @@ export default function ProductForm({
 
 	return (
 		<>
-			<Toaster
-				toastOptions={{
-					duration: 2900,
-				}}
-			/>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
@@ -284,7 +291,7 @@ export default function ProductForm({
 											<FormItem>
 												<FormLabel>Color</FormLabel>
 												<FormControl>
-													<Input {...field} />
+													<Input placeholder="Red" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -344,7 +351,8 @@ export default function ProductForm({
 					<Separator className="my-4" />
 
 					<Button type="submit" disabled={isSubmitting}>
-						{isSubmitting ? "Creating..." : "Create Product"}
+						{isSubmitting && "Submitting..."}
+						{product ? 'Update' : "Create"}
 					</Button>
 				</form>
 			</Form>

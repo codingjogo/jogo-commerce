@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { PlusCircleIcon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Toaster } from "react-hot-toast";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -62,6 +63,11 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<>
+		<Toaster 
+			toastOptions={{
+				duration: 2900
+			}}
+		/>
 			<div className="flex items-center justify-between">
         {/* Search Input */}
 				<div className="relative flex items-center py-4">
