@@ -21,3 +21,9 @@ export type TVariantSize = Prisma.variant_sizeGetPayload<{
     variant_color: true
   }
 }>
+
+export type TAddressWithUser = Prisma.addressGetPayload<{
+  include: {
+    user: true
+  }
+}>

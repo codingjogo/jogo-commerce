@@ -59,12 +59,13 @@ model variant_color {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model variant_size {
-  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at       DateTime      @default(now()) @db.Timestamptz(6)
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at       DateTime       @default(now()) @db.Timestamptz(6)
   size             COLOR_SIZES?
   stock            Int
-  variant_color_id String        @db.Uuid
-  variant_color    variant_color @relation(fields: [variant_color_id], references: [id], onDelete: Cascade)
+  variant_color_id String?        @db.Uuid
+  status           String
+  variant_color    variant_color? @relation(fields: [variant_color_id], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -98,4 +99,10 @@ enum COLOR_SIZES {
 enum PRODUCT_STATUS {
   ACTIVE
   DISCONTINUED
+}
+
+enum SIZE_STATUS {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
 }

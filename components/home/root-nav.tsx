@@ -73,7 +73,8 @@ const RootNav = () => {
 	];
 
 	return (
-		<header className="container py-4 flex items-center justify-between">
+		<header className="bg-foreground text-background py-4">
+			<div className="container flex items-center justify-between">
 			<Link href={"/"}>
 				<Image
 					src={Logo}
@@ -154,9 +155,9 @@ const RootNav = () => {
 				<SheetTrigger className="block lg:hidden">
 					<MenuIcon />
 				</SheetTrigger>
-				<SheetContent className="w-full">
+				<SheetContent className="w-full bg-foreground text-background">
 					<SheetHeader>
-						<SheetTitle>SoulePsycle.com</SheetTitle>
+						<SheetTitle className="text-background">SoulePsycle.com</SheetTitle>
 						<SheetDescription>{""}</SheetDescription>
 					</SheetHeader>
 
@@ -243,6 +244,7 @@ const RootNav = () => {
 					</nav>
 				</SheetContent>
 			</Sheet>
+			</div>
 		</header>
 	);
 };
