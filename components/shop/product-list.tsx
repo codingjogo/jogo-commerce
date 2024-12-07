@@ -25,7 +25,7 @@ export function ProductList({ query, category }: { query: string; category: stri
       try {
         // Fetch products from the API
         const response = await axios.get('/api/shop', {
-          params: { query, category },
+          params: { query, category, q:query },
         });
         setProducts(response.data.products);
       } catch (err) {

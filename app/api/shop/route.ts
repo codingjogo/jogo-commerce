@@ -5,16 +5,20 @@ export async function GET(req: NextRequest) {
   try {
     // Parse query parameters
     const { searchParams } = new URL(req.url);
-    const category = searchParams.get("category"); // Retrieve the category from the query params
+    const category = searchParams.get("category");
+    const query = searchParams.get("q")?.toLowerCase() || ""; // Default to an empty string if no query
 
     // Build query conditions
-    const whereCondition = category
-      ? {
-          category: {
-            name: category, // Assuming the `name` field in the `category` model is used for filtering
-          },
-        }
-      : {}; // If no category is provided, fetch all products
+    const whereCondition: any = {
+      AND: [
+        category
+          ? { category: { name: category.toLowerCase() } }
+          : {}, // Filter by category if provided
+        query
+          ? { name: { contains: query, mode: "insensitive" } }
+          : {}, // Filter by query if provided
+      ],
+    };
 
     // Fetch products
     const products = await prisma.product.findMany({
