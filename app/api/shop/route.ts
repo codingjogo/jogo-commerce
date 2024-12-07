@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
     const query = searchParams.get("q")?.toLowerCase() || ""; // Default to an empty string if no query
 
     // Build query conditions
+    // eslint-disable-next-line
     const whereCondition: any = {
       AND: [
         category
