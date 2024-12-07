@@ -22,7 +22,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { DataTablePagination } from "@/components/ui/data-table-pagination";
 import { Input } from "@/components/ui/input";
 import { PlusCircleIcon, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -90,11 +89,6 @@ export function DataTable<TData, TValue>({
 				</div>
 
        <div className="flex gap-2">
-					<Button type="button" variant={'outline'} asChild>
-						<Link href={'/admin/inventory/featured-products'}>
-							Featured Products
-						</Link>
-					</Button>
 
 				 {/* Add Product Button */}
 				 <Button type="button" asChild>
@@ -163,7 +157,6 @@ export function DataTable<TData, TValue>({
 					</TableBody>
 				</Table>
 			</div>
-			<DataTablePagination table={table} />
 		</>
 	);
 }

@@ -32,18 +32,19 @@ model category {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model product {
-  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at    DateTime        @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime?       @db.Timestamptz(6)
-  name          String
-  slug          String
-  sku           String          @unique
-  description   String?
-  status        String
-  category_id   String          @db.Uuid
-  price         Float           @db.Real
-  category      category        @relation(fields: [category_id], references: [id], onDelete: Cascade)
-  variant_color variant_color[]
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime?          @db.Timestamptz(6)
+  name             String
+  slug             String
+  sku              String             @unique
+  description      String?
+  status           String
+  category_id      String             @db.Uuid
+  price            Float              @db.Real
+  featured_product featured_product[]
+  category         category           @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  variant_color    variant_color[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -82,6 +83,14 @@ model address {
   is_default   Boolean
   user_id      String    @db.Uuid
   user         user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model featured_product {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  product_id String   @db.Uuid
+  product    product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
 }
 
 /// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
