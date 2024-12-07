@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const whereCondition: any = {
       AND: [
         category
-          ? { category: { name: category.toLowerCase() } }
+          ? { category: { name: category } }
           : {}, // Filter by category if provided
         query
           ? { name: { contains: query, mode: "insensitive" } }
