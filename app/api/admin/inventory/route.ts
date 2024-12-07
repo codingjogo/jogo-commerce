@@ -51,3 +51,35 @@ export async function POST(req: NextRequest) {
 		});
 	}
 }
+
+export async function DELETE(req: Request) {
+  try {
+    // Parse the query parameter from the request URL
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+		console.log('Product ID to Delete', id)
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const deletedProduct = await prisma.product.delete({
+      where: { id },
+    });
+
+    return NextResponse.json(
+      { message: "Product deleted successfully", deletedProduct },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return NextResponse.json(
+      { error: "An error occurred while deleting the product" },
+      { status: 500 }
+    );
+  }
+}

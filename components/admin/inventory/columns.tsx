@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header"
 import { CldImage } from "next-cloudinary"
+import ProductDelete from "./product-delete"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -127,9 +128,7 @@ export const columns: ColumnDef<Product>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Button type="button" className="w-full" variant={'destructive'}>
-                Delete
-              </Button>
+              <ProductDelete productId={productId} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

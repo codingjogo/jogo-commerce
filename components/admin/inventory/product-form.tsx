@@ -28,7 +28,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 import { PlusCircleIcon } from "lucide-react";
 import {
@@ -133,11 +133,6 @@ export default function ProductForm({
 
 	return (
 		<>
-			<Toaster
-				toastOptions={{
-					duration: 2900,
-				}}
-			/>
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
