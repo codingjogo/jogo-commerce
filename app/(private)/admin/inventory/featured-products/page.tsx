@@ -14,7 +14,7 @@ import {
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export async function getData(): Promise<Product[]> {
+async function getData(): Promise<Product[]> {
 	const data = await prisma.featured_product.findMany({
 		include: {
 			product: {
