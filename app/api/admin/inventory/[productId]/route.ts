@@ -33,7 +33,7 @@ export async function PUT(
 						color: variant_color.color,
 						images: variant_color.images,
 						variant_size: {
-							create: variant_color.variant_size.map(
+							create: variant_color.variant_size?.map(
 								(variant_size) => ({
 									size: variant_size.size,
 									stock: variant_size.stock,
