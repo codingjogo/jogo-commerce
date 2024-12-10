@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: TProductList }) {
   console.log("product", product)
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow-sm">
+    <Link href={`/shop/product/${product.id}`} className="border rounded-lg overflow-hidden shadow-sm">
       <CldImage
         src={product.variant_color.map((vc) => vc.images)[0][0]}
         alt={product.name}
@@ -26,7 +26,7 @@ export function ProductCard({ product }: { product: TProductList }) {
           <Link href={`/product/${product.id}`}>View Details</Link>
         </Button>
       </div>
-    </div>
+    </Link>
   )
 }
 

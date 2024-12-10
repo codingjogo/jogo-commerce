@@ -156,7 +156,7 @@ const VariantSizes = ({
 									variant={"secondary"}
 									onClick={() => {
 										variantSizeAppend({
-											size: "" as COLOR_SIZES,
+											size: null,
 											stock: 0,
 											status: "IN_STOCK" as SIZE_STATUS,
 										});
