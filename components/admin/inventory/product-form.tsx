@@ -32,7 +32,6 @@ import toast, { Toaster } from "react-hot-toast";
 
 import { PlusCircleIcon } from "lucide-react";
 import {
-	COLOR_SIZES,
 	PRODUCT_STATUS,
 	productSchema,
 	SIZE_STATUS,
@@ -341,7 +340,7 @@ export default function ProductForm({
 								images: [],
 								variant_size: [
 									{
-										size: "" as COLOR_SIZES,
+										size: null,
 										stock: 0,
 										status: "IN_STOCK" as SIZE_STATUS,
 									},
