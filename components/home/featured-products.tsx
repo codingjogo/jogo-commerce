@@ -5,8 +5,6 @@ import axios from "axios";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Prisma } from "@prisma/client";
 import { CldImage } from "next-cloudinary";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function FeaturedProducts() {
@@ -23,7 +21,6 @@ export default function FeaturedProducts() {
 	>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const router = useRouter();
 
 	useEffect(() => {
 		const fetchFeaturedProducts = async () => {
