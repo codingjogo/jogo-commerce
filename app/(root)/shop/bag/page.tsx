@@ -1,4 +1,5 @@
 import BagItemList from "@/components/shop/bag/bag-item-list";
+import OrderSummary from "@/components/shop/bag/order-summary";
 import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -38,7 +39,10 @@ export default async function Bag() {
     <section className="container cpy">
       <h1 className="mb-6">Your Bag</h1>
 
-      <BagItemList bagItems={bagItems} />
+      <div className="flex gap-12">
+        <BagItemList bagItems={bagItems} />
+        <OrderSummary />
+      </div>
     </section>
   );
 }

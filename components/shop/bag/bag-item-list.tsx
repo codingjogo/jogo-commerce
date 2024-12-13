@@ -57,7 +57,7 @@ export default function BagItemList({
 	}, [initialItems, setItemsInBagStore]);
 
 	return (
-		<div className="space-y-4">
+		<div className="flex-1 space-y-4">
 			{bagItems.length > 0 &&
 				bagItems.map((item) => (
 					<div
