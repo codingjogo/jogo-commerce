@@ -2,11 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Prisma } from '@prisma/client'
 import { CldImage } from 'next-cloudinary'
-import axios from 'axios'
-import Link from 'next/link'
 
 type BagItemWithDetails = Prisma.bagGetPayload<{
   include: {
@@ -23,39 +20,12 @@ interface OrderSummaryProps {
 export default function OrderSummary({ items: initialItems }: OrderSummaryProps) {
   const [items, setItems] = useState(initialItems)
   const [subtotal, setSubtotal] = useState(0)
-  const shippingFee = 100
+  const shippingFee = 100 // Example fixed shipping fee
 
   useEffect(() => {
     const newSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
     setSubtotal(newSubtotal)
   }, [items])
-
-  const updateQuantity = async (id: string, newQuantity: number) => {
-    try {
-      // Optimistic UI Update
-      setItems(prevItems =>
-        prevItems.map(item =>
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
-      );
-  
-      // API Call to Update Database
-      const response = await await axios.put('/api/shop/bag/update-quantity', { bagItemId: id, quantity: newQuantity })
-  
-      if (response.status !== 200) {
-        throw new Error('Failed to update quantity');
-      }
-    } catch (error) {
-      console.error(error);
-  
-      // Rollback UI if API Call Fails
-      setItems(prevItems =>
-        prevItems.map(item =>
-          item.id === id ? { ...item, quantity: prevItems.find(i => i.id === id)?.quantity || 1 } : item
-        )
-      );
-    }
-  };
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg">
@@ -75,17 +45,9 @@ export default function OrderSummary({ items: initialItems }: OrderSummaryProps)
               <p className="text-xs text-gray-500">
                 Color: {item.variant_color.color}, Size: {item.variant_size?.size}
               </p>
+              <p className="text-sm">Quantity: {item.quantity}</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <Input
-                type="number"
-                min="1"
-                value={item.quantity}
-                onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-                className="w-16 text-sm"
-              />
-              <span className="text-sm font-medium">₱{(item.product.price * item.quantity).toFixed(2)}</span>
-            </div>
+            <span className="text-sm font-medium">₱{(item.product.price * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
@@ -103,11 +65,7 @@ export default function OrderSummary({ items: initialItems }: OrderSummaryProps)
           <span>₱{(subtotal + shippingFee).toFixed(2)}</span>
         </div>
       </div>
-      <Button className="w-full" asChild>
-        <Link href={'/shop/checkout'}>
-          Proceed to Checkout
-        </Link>
-      </Button>
+      <Button className="w-full">Place Order</Button>
     </div>
   )
 }
