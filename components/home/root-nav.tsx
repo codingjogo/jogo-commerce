@@ -34,7 +34,6 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SignOutButton, useUser } from "@clerk/nextjs";
-import CustomLogoutButton from "../auth/custom-logout-button";
 
 const RootNav = () => {
 	const [open, setOpen] = React.useState<boolean>(false);

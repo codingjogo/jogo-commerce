@@ -25,7 +25,8 @@ export default function OrderSummary({ items: initialItems }: OrderSummaryProps)
   useEffect(() => {
     const newSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
     setSubtotal(newSubtotal)
-  }, [items])
+    setItems(initialItems)
+  }, [items, initialItems])
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg">

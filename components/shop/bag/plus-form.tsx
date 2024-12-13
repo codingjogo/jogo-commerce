@@ -6,7 +6,7 @@ import axios from "axios";
 import { Plus } from "lucide-react";
 import React, { useEffect } from "react";
 
-const PlusForm = ({ id, quantity, clerk_user_id, maxStock }: { id:string; quantity: number; clerk_user_id: string; maxStock: number; }) => {
+const PlusForm = ({ id, quantity, clerk_user_id, }: { id:string; quantity: number; clerk_user_id: string; }) => {
 
     const handleClick = async () => {
       if (quantity) {

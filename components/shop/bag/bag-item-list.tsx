@@ -112,7 +112,6 @@ export default function BagItemList({
 										id={item.id}
 										quantity={item.quantity}
 										clerk_user_id={clerk_user_id}
-										maxStock={item.maxStock}
 									/>
 								</div>
 
