@@ -13,7 +13,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import GCASH from "@/public/payment-methods/gcash.jpg";
@@ -23,7 +22,6 @@ import BPI from "@/public/payment-methods/bpi.jpg";
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -156,7 +154,7 @@ const CheckoutForm = ({
 
 						{/* End of Shipping Form */}
 						{/* -------------------- */}
-						
+
 						{/* -------------------- */}
 						{/* <PaymentInstructions /> */}
 						<div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -354,25 +352,6 @@ const CheckoutForm = ({
 													}}
 												</CldUploadWidget>
 											</div>
-											{/* {receiptUploaded && (
-								<Alert className="mt-4">
-									<CheckCircle2 className="h-4 w-4" />
-									<AlertTitle>Success</AlertTitle>
-									<AlertDescription>
-										Your receipt has been uploaded
-										successfully.
-									</AlertDescription>
-								</Alert>
-							)} */}
-											{/* {uploadError && (
-								<Alert variant="destructive" className="mt-4">
-									<AlertCircle className="h-4 w-4" />
-									<AlertTitle>Error</AlertTitle>
-									<AlertDescription>
-										{uploadError}
-									</AlertDescription>
-								</Alert>
-							)} */}
 										</div>
 
 										<div>

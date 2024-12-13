@@ -68,8 +68,6 @@ export const POST = async (req: Request) => {
 	const { user_id, product_id, variant_color_id, variant_size_id } =
 		validatedData;
 
-	console.log("Values in POST", validatedData)
-
 	const userFromDB = await prisma.user.findFirst({
 		where: {
 			clerk_user_id: user_id
@@ -88,7 +86,7 @@ export const POST = async (req: Request) => {
 		const existingBagItem = await prisma.bag.findFirst({
 			where:{
 				user_id: userFromDBID,
-				product_id,
+				variant_size_id,
 			}
 		})
 
