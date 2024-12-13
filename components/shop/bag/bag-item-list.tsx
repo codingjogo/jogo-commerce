@@ -7,9 +7,13 @@ import { useEffect } from "react";
 import { CldImage } from "next-cloudinary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import MinusForm from "./minus-form";
+import PlusForm from "./plus-form";
+import { Button } from "@/components/ui/button";
 
 export default function BagItemList({
 	bagItems: initialItems,
+	clerk_user_id,
 }: {
 	bagItems: Prisma.bagGetPayload<{
 		include: {
@@ -18,6 +22,7 @@ export default function BagItemList({
 			variant_size: true;
 		};
 	}>[];
+	clerk_user_id: string
 }) {
 	const bagItems = useBagStore((state) => state.bagItems);
 	const removeItemInBagStore = useBagStore(
@@ -49,86 +54,82 @@ export default function BagItemList({
 				name: i.product.name,
 				category: i.product.category.name,
 				price: Number(i.product.price),
-        color: i.variant_color.color as string,
-        size: i.variant_size?.size as string,
+				color: i.variant_color.color as string,
+				size: i.variant_size?.size as string,
+				size_id: i.variant_size_id as string,
 				quantity: Number(i.quantity),
+				maxStock: Number(i.variant_size?.stock)
 			}))
 		);
+		console.log("bagItems", bagItems)
 	}, [initialItems, setItemsInBagStore]);
 
 	return (
-		<div className="flex-1 space-y-4">
-			{bagItems.length > 0 &&
-				bagItems.map((item) => (
-					<div
-						key={item.id}
-						className="flex items-center space-x-4 border-b pb-4"
-					>
-						{/* Item Image */}
-						<div className="overflow-hidden rounded-md">
-							<CldImage
-								width={64}
-								height={64}
-								src={item.image}
-								alt={item.name}
-								className="w-full h-full object-cover"
-							/>
-						</div>
-
-						{/* Item Details */}
-						<div className="flex-1">
-							<div className="font-medium text-lg">
-								{item.name}
-							</div>
-							<div className="font-medium text-lg">
-								{item.color} | {item.size}
-							</div>
-							<Badge >{item.category}</Badge>
-							<div className="text-sm text-gray-500">
-								Price: ₱{item.price.toFixed(2)}
-							</div>
-						</div>
-
-						{/* Quantity Editor */}
-						<div className="flex items-center space-x-2">
-							<button
-								onClick={() =>
-									item.quantity > 1 &&
-									useBagStore
-										.getState()
-										.updateItemInBagStore(item.id, {
-											quantity: item.quantity - 1,
-										})
-								}
-								className="btn btn-secondary btn-sm"
+		<>
+			<Card className="flex-1 space-y-4 shadow-lg border border-gray-200">
+				<CardContent className="p-6">
+					{bagItems.length > 0 &&
+						bagItems.map((item) => (
+							<div
+								key={item.id}
+								className="flex items-center space-x-4 border-b pb-4"
 							>
-								-
-							</button>
-							<span className="font-medium">{item.quantity}</span>
-							<button
-								onClick={() =>
-									useBagStore
-										.getState()
-										.updateItemInBagStore(item.id, {
-											quantity: item.quantity + 1,
-										})
-								}
-								className="btn btn-secondary btn-sm"
-							>
-								+
-							</button>
-						</div>
+								{/* Item Image */}
+								<div className="overflow-hidden rounded-md">
+									<CldImage
+										width={64}
+										height={64}
+										src={item.image}
+										alt={item.name}
+										className="w-full h-full object-cover"
+									/>
+								</div>
 
-						{/* Remove Button */}
-						<button
-							onClick={() => removeItem(item.id)}
-							className="btn btn-destructive btn-sm"
-						>
-							Remove
-						</button>
-					</div>
-				))}
+								{/* Item Details */}
+								<div className="flex-1">
+									<div className="font-medium text-lg">
+										{item.name}
+									</div>
+									<div className="font-medium text-lg">
+										{item.color} | {item.size}
+									</div>
+									<Badge>{item.category}</Badge>
+									<div className="text-sm text-gray-500">
+										Price: ₱{item.price.toFixed(2)}
+									</div>
+								</div>
 
+								{/* Quantity Editor */}
+								<div className="flex items-center space-x-2">
+									<MinusForm
+										id={item.id}
+										quantity={item.quantity}
+										clerk_user_id={clerk_user_id}
+									/>
+									<span className="font-medium">
+										{item.quantity}
+									</span>
+									<PlusForm
+										id={item.id}
+										quantity={item.quantity}
+										clerk_user_id={clerk_user_id}
+										maxStock={item.maxStock}
+									/>
+								</div>
+
+								{/* Remove Button */}
+								<Button
+									type="button"
+									variant={"ghost"}
+									onClick={() => removeItem(item.id)}
+									className="btn btn-destructive btn-sm"
+								>
+									Remove
+								</Button>
+							</div>
+						))}
+				</CardContent>
+			</Card>
 			{bagItems.length === 0 && (
 				<>
 					<Card>
@@ -139,6 +140,6 @@ export default function BagItemList({
 					</Card>
 				</>
 			)}
-		</div>
+		</>
 	);
 }

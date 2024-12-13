@@ -8,7 +8,9 @@ interface BagItem {
   price: number;
   color: string;
   size: string;
+  size_id:string;
   quantity: number;
+  maxStock: number;
 }
 
 interface BagStore {

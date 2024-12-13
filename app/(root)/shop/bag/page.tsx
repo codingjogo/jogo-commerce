@@ -40,7 +40,7 @@ export default async function Bag() {
       <h1 className="mb-6">Your Bag</h1>
 
       <div className="flex gap-12">
-        <BagItemList bagItems={bagItems} />
+        <BagItemList bagItems={bagItems} clerk_user_id={userId} />
         <OrderSummary />
       </div>
     </section>

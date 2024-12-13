@@ -1,7 +1,9 @@
 import prisma from "@/lib/db";
 
 export const PUT = async (req: Response) => {
-  const { bagItemId, quantity } = await req.json();
+  const {searchParams} = new URL(req.url);
+  const bagItemId = searchParams.get('bagItemId');
+  const quantity = Number(searchParams.get('quantity'));
 
   if (!bagItemId || !quantity) {
     return new Response(JSON.stringify({

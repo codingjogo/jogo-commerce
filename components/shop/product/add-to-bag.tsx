@@ -17,6 +17,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 const AddToBag = ({
 	clerk_user_id,
@@ -29,6 +30,7 @@ const AddToBag = ({
 	variant_color_id: string;
 	variant_size_id?: string | null;
 }) => {
+	const router = useRouter();
 	const form = useForm<TBagFormValues>({
 		resolver: zodResolver(bagSchema),
 		defaultValues: {
@@ -49,6 +51,10 @@ const AddToBag = ({
 
 			if (response.status === 200) {
 				toast.success("Successfully Added to Bag.");
+
+				setTimeout(() => {
+					router.refresh();
+				}, 3000)
 			} else {
 				toast.error("Failed to Add.");
 			}

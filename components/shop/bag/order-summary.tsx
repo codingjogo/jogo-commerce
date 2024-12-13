@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CldImage } from "next-cloudinary";
 import { useBagStore } from "@/store/useBagStore";
+import Link from "next/link";
 
 const OrderSummary: React.FC = () => {
 	const bagItems = useBagStore((state) => state.bagItems);
@@ -75,8 +76,10 @@ const OrderSummary: React.FC = () => {
 				</div>
 
 				{/* Checkout Button */}
-				<Button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2">
+				<Button className="mt-4 w-full" variant={'default'} asChild>
+					<Link href={'/shop/checkout'}>
 					Proceed to Checkout
+					</Link>
 				</Button>
 			</CardContent>
 		</Card>
