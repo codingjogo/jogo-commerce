@@ -1,5 +1,6 @@
 import BagItemList from "@/components/shop/bag/bag-item-list";
 import OrderSummary from "@/components/shop/bag/order-summary";
+import { Card, CardContent } from "@/components/ui/card";
 import prisma from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
@@ -40,8 +41,22 @@ export default async function Bag() {
       <h1 className="mb-6">Your Bag</h1>
 
       <div className="flex gap-12">
-        <BagItemList bagItems={bagItems} clerk_user_id={userId} />
-        <OrderSummary />
+      {bagItems.length === 0 && (
+				<>
+					<Card className="w-full">
+						<CardContent className="flex flex-col gap-2 items-center justify-center p-6">
+							<h1>Your Bag is Empty.</h1>
+							<p>Please Add Item to Bag.</p>
+						</CardContent>
+					</Card>
+				</>
+			)}
+        {bagItems.length > 0 && (
+          <>
+            <BagItemList bagItems={bagItems} clerk_user_id={userId} />
+            <OrderSummary />
+          </>
+        )}
       </div>
     </section>
   );

@@ -61,14 +61,13 @@ export default function BagItemList({
 				maxStock: Number(i.variant_size?.stock)
 			}))
 		);
-		console.log("bagItems", bagItems)
 	}, [initialItems, setItemsInBagStore]);
 
 	return (
 		<>
 			<Card className="flex-1 space-y-4 shadow-lg border border-gray-200">
 				<CardContent className="p-6">
-					{bagItems.length > 0 &&
+					{
 						bagItems.map((item) => (
 							<div
 								key={item.id}
@@ -130,16 +129,6 @@ export default function BagItemList({
 						))}
 				</CardContent>
 			</Card>
-			{bagItems.length === 0 && (
-				<>
-					<Card>
-						<CardContent className="flex flex-col gap-2 items-center justify-center p-6">
-							<h1>Your Bag is Empty.</h1>
-							<p>Please Add Item to Bag.</p>
-						</CardContent>
-					</Card>
-				</>
-			)}
 		</>
 	);
 }
