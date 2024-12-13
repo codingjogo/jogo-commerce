@@ -1,11 +1,16 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { capitalizeWords } from "@/lib/helpers";
 
 // This would typically come from an API or database
 const categories = [
-	{ id: 1, categoryName: "Tote Bag", image: "/shirt-placeholder.jpg" },
-	{ id: 2, categoryName: "Shirts", image: "/shirt-placeholder.jpg" },
+	{
+		id: 1,
+		categoryName: "Tote Bag",
+		image: "/products-gallery/ocean-blue-eyes.jpg",
+	},
+	{ id: 2, categoryName: "Shirt", image: "/products-gallery/gambala.jpg" },
 ];
 
 export default function ProductGallery() {
@@ -34,7 +39,11 @@ export default function ProductGallery() {
 										{category.categoryName}
 									</h3>
 									<Button asChild variant="secondary">
-										<Link href={`/shop/${category.id}`}>
+										<Link
+											href={`/shop?category=${capitalizeWords(
+												category.categoryName
+											)}`}
+										>
 											View Collection
 										</Link>
 									</Button>
