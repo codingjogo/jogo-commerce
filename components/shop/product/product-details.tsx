@@ -6,9 +6,13 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CldImage } from "next-cloudinary";
 import { Prisma } from "@prisma/client";
+import AddToBag from "./add-to-bag";
+import { useAuth } from "@clerk/nextjs";
+import { notFound } from "next/navigation";
 
 export default function ProductDetails({
 	product,
+	bagItems,
 }: {
 	product: Prisma.productGetPayload<{
 		include: {
@@ -20,6 +24,13 @@ export default function ProductDetails({
 			};
 		};
 	}>;
+	bagItems: Prisma.bagGetPayload<{
+		include: {
+			product: true;
+			variant_color: true;
+			variant_size: true;
+		};
+	}>[];
 }) {
 	// Initial states for selected color, size, and image
 	const [selectedColor, setSelectedColor] = useState(
@@ -30,6 +41,19 @@ export default function ProductDetails({
 	const [selectedSizeId, setSelectedSizeId] = useState("");
 	const [selectedImage, setSelectedImage] = useState(
 		product.variant_color[0]?.images[0] || "/placeholder.svg"
+	);
+
+	const { userId } = useAuth();
+
+	if (!userId) {
+		notFound();
+	}
+
+	const isToteBagCategory =
+		product.category.name.toLowerCase() === "tote bag";
+
+	const isBagItemExist = bagItems.find(
+		(b) => b.variant_color_id === selectedColorId
 	);
 
 	// Get selected variant color based on selected color
@@ -56,17 +80,6 @@ export default function ProductDetails({
 		setSelectedSizeId(sizeId);
 	};
 
-	// Handle add to cart
-	const handleAddToCart = async () => {
-		console.log("Added to cart:", {
-			variantColorId: selectedColorId, // Color variant ID
-			selectedSizeId: selectedSizeId, // Size variant ID
-			quantity: 1, // Example quantity
-		});
-
-		// API request to add product to cart with color and size IDs
-	};
-
 	const handleBuyNow = () => {
 		console.log("Buy now:", {
 			variantColorId: selectedColorId,
@@ -78,20 +91,28 @@ export default function ProductDetails({
 		console.log("Added to wishlist:", selectedColorId);
 	};
 
+	const productId = product.id;
+	const newVariant = product.variant_color.find(
+		(variant) => variant.color === selectedColor
+	);
+
 	useEffect(() => {
-		console.log("Selected Values:", {
-			selectedColor,
-			selectedColorId,
-			selectedSize,
-			selectedSizeId,
-			selectedVariantColor,
+		setSelectedColorId(newVariant?.id || "");
+		console.log("bagItems:", {
+			bagItems,
+			isBagItemExist,
 		});
 	}, [
+		userId,
+		productId,
 		selectedColor,
 		selectedColorId,
 		selectedSize,
 		selectedSizeId,
 		selectedVariantColor,
+		bagItems,
+		isBagItemExist,
+		newVariant,
 	]);
 
 	return (
@@ -163,7 +184,8 @@ export default function ProductDetails({
 				</div>
 
 				{/* Variant Size Selection (Conditional) */}
-				{selectedVariantColor &&
+				{!isToteBagCategory &&
+					selectedVariantColor &&
 					selectedVariantColor.variant_size.length > 0 && (
 						<div>
 							<h3 className="text-lg font-semibold mb-2">Size</h3>
@@ -202,11 +224,11 @@ export default function ProductDetails({
 															(Low Stock)
 														</span>
 													)}
-                          {size.stock === 0 && (
-														<span className="ml-2 text-xs text-red-500">
-															(Out of Stock)
-														</span>
-													)}
+												{size.stock === 0 && (
+													<span className="ml-2 text-xs text-red-500">
+														(Out of Stock)
+													</span>
+												)}
 											</Label>
 										</div>
 									)
@@ -217,18 +239,23 @@ export default function ProductDetails({
 
 				{/* Action Buttons */}
 				<div className="flex gap-4">
-					<Button
-						onClick={handleAddToCart}
-						className="flex-1"
-						disabled={!selectedSize}
-					>
-						Add to Cart
-					</Button>
+					{/* 
+						- Is variant size with color id is equals to bag item?
+						- Then show minus quantity plus
+						- Else Add To Bag
+					*/}
+
+					<AddToBag
+						clerk_user_id={userId}
+						product_id={productId}
+						variant_color_id={selectedColorId}
+						variant_size_id={selectedSizeId}
+					/>
+
 					<Button
 						onClick={handleBuyNow}
 						variant="outline"
 						className="flex-1"
-						disabled={!selectedSize}
 					>
 						Buy Now
 					</Button>

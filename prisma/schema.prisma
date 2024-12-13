@@ -124,12 +124,12 @@ model bag {
   user_id          String        @db.Uuid
   product_id       String        @db.Uuid
   variant_color_id String        @db.Uuid
-  variant_size_id  String        @db.Uuid
+  variant_size_id  String?       @db.Uuid
   quantity         Int           @default(1)
   product          product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
   user             user          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   variant_color    variant_color @relation(fields: [variant_color_id], references: [id], onDelete: Cascade)
-  variant_size     variant_size  @relation(fields: [variant_size_id], references: [id], onDelete: Cascade)
+  variant_size     variant_size? @relation(fields: [variant_size_id], references: [id], onDelete: Cascade)
 }
 
 /// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
