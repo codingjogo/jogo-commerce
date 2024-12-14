@@ -89,12 +89,20 @@ export function DataTable<TData, TValue>({
           <SearchIcon className="absolute left-2" />
 				</div>
 
-        {/* Add Product Button */}
-        <Button type="button" asChild>
+       <div className="flex gap-2">
+					<Button type="button" variant={'outline'} asChild>
+						<Link href={'/admin/inventory/featured-products'}>
+							Featured Products
+						</Link>
+					</Button>
+
+				 {/* Add Product Button */}
+				 <Button type="button" asChild>
           <Link href={'/admin/inventory/create'}>
             <PlusCircleIcon />Add Product
           </Link>
         </Button>
+			 </div>
 			</div>
 			<div className="rounded-md border mb-2">
 				<Table>

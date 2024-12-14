@@ -32,7 +32,6 @@ import toast, { Toaster } from "react-hot-toast";
 
 import { PlusCircleIcon } from "lucide-react";
 import {
-	COLOR_SIZES,
 	PRODUCT_STATUS,
 	productSchema,
 	SIZE_STATUS,
@@ -124,7 +123,10 @@ export default function ProductForm({
     } catch (error) {
       console.error("Error while submitting the product:", error);
       toast.error("An error occurred while submitting the product.");
-    }
+    } finally {
+			router.refresh();
+			router.push("/admin/inventory");
+		}
   };
 
 	React.useEffect(() => {
@@ -341,7 +343,7 @@ export default function ProductForm({
 								images: [],
 								variant_size: [
 									{
-										size: "" as COLOR_SIZES,
+										size: null,
 										stock: 0,
 										status: "IN_STOCK" as SIZE_STATUS,
 									},

@@ -36,7 +36,7 @@ export const variantColorSchema = z.object({
 	color: z.string().min(1, "color is required"),
 	images: z.array(z.string()).min(1, "at least one image is required"),
 	product_id: z.string().uuid().optional(),
-	variant_size: z.array(variantSizeSchema).nonempty(),
+	variant_size: z.array(variantSizeSchema).optional(),
 });
 
 export const productSchema = z.object({
