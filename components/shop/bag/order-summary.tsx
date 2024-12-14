@@ -1,109 +1,89 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Prisma } from '@prisma/client'
-import { CldImage } from 'next-cloudinary'
-import axios from 'axios'
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CldImage } from "next-cloudinary";
+import { useBagStore } from "@/store/useBagStore";
+import Link from "next/link";
 
-type BagItemWithDetails = Prisma.bagGetPayload<{
-  include: {
-    product: true
-    variant_color: true
-    variant_size: true
-  }
-}>
+const OrderSummary: React.FC = () => {
+	const bagItems = useBagStore((state) => state.bagItems);
 
-interface OrderSummaryProps {
-  items: BagItemWithDetails[]
-}
+	// Calculate total price
+	const totalPrice = bagItems.reduce(
+		(acc, item) => acc + item.price * item.quantity,
+		0
+	);
 
-export default function OrderSummary({ items: initialItems }: OrderSummaryProps) {
-  const [items, setItems] = useState(initialItems)
-  const [subtotal, setSubtotal] = useState(0)
-  const shippingFee = 100
+	return (
+		<Card className="w-full max-w-md mx-auto shadow-lg border border-gray-200">
+			<CardHeader>
+				<CardTitle className="text-lg font-semibold">
+					Order Summary
+				</CardTitle>
+			</CardHeader>
+			<CardContent>
+				{/* Items List */}
+				<div className="space-y-4">
+					{bagItems.length === 0 ? (
+						<p className="text-center text-gray-500">
+							Your bag is empty.
+						</p>
+					) : (
+						bagItems.map((item) => (
+							<div
+								key={item.id}
+								className="flex items-center justify-between border-b border-gray-200 pb-2"
+							>
+								<div className="flex items-center space-x-4">
+									<CldImage
+										width={64}
+										height={64}
+										src={item.image}
+										alt={item.name}
+										className="w-16 h-16 object-cover rounded-md"
+									/>
+									<div>
+										<p className="font-medium text-gray-800">
+											{item.name}
+										</p>
+										<p className="text-sm text-gray-500">
+											{item.category} | {item.color} |{" "}
+											{item.size}
+										</p>
+									</div>
+								</div>
+								<div className="text-right">
+									<p className="text-sm text-gray-600">
+										Qty: {item.quantity}
+									</p>
+									<p className="font-semibold text-gray-800">
+                  ₱{item.price * item.quantity}
+									</p>
+								</div>
+							</div>
+						))
+					)}
+				</div>
 
-  useEffect(() => {
-    const newSubtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
-    setSubtotal(newSubtotal)
-  }, [items])
+				{/* Total Price */}
+				<div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+					<p className="text-lg font-semibold">Total</p>
+					<p className="text-lg font-bold">
+          ₱{totalPrice.toFixed(2)}
+					</p>
+				</div>
 
-  const updateQuantity = async (id: string, newQuantity: number) => {
-    try {
-      // Optimistic UI Update
-      setItems(prevItems =>
-        prevItems.map(item =>
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
-      );
-  
-      // API Call to Update Database
-      const response = await await axios.put('/api/shop/bag/update-quantity', { bagItemId: id, quantity: newQuantity })
-  
-      if (response.status !== 200) {
-        throw new Error('Failed to update quantity');
-      }
-    } catch (error) {
-      console.error(error);
-  
-      // Rollback UI if API Call Fails
-      setItems(prevItems =>
-        prevItems.map(item =>
-          item.id === id ? { ...item, quantity: prevItems.find(i => i.id === id)?.quantity || 1 } : item
-        )
-      );
-    }
-  };
+				{/* Checkout Button */}
+				<Button className="mt-4 w-full" variant={'default'} asChild>
+					<Link href={'/shop/checkout'}>
+					Proceed to Checkout
+					</Link>
+				</Button>
+			</CardContent>
+		</Card>
+	);
+};
 
-  return (
-    <div className="bg-gray-50 p-6 rounded-lg">
-      <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-      <div className="space-y-4 mb-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center space-x-4">
-            <CldImage
-              src={item.variant_color.images[0]}
-              alt={item.product.name}
-              width={50}
-              height={50}
-              className="rounded-md"
-            />
-            <div className="flex-grow">
-              <h3 className="font-semibold text-sm">{item.product.name}</h3>
-              <p className="text-xs text-gray-500">
-                Color: {item.variant_color.color}, Size: {item.variant_size?.size}
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Input
-                type="number"
-                min="1"
-                value={item.quantity}
-                onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-                className="w-16 text-sm"
-              />
-              <span className="text-sm font-medium">₱{(item.product.price * item.quantity).toFixed(2)}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="space-y-2 mb-4">
-        <div className="flex justify-between">
-          <span>Subtotal</span>
-          <span>₱{subtotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Shipping Fee</span>
-          <span>₱{shippingFee.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between font-semibold text-lg">
-          <span>Total</span>
-          <span>₱{(subtotal + shippingFee).toFixed(2)}</span>
-        </div>
-      </div>
-      <Button className="w-full">Proceed to Checkout</Button>
-    </div>
-  )
-}
-
+export default OrderSummary;

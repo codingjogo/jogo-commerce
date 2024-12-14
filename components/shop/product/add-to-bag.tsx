@@ -17,6 +17,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 const AddToBag = ({
 	clerk_user_id,
@@ -29,6 +30,7 @@ const AddToBag = ({
 	variant_color_id: string;
 	variant_size_id?: string | null;
 }) => {
+	const router = useRouter();
 	const form = useForm<TBagFormValues>({
 		resolver: zodResolver(bagSchema),
 		defaultValues: {
@@ -39,7 +41,7 @@ const AddToBag = ({
 		},
 	});
 
-	const isLoading = form.formState.isLoading || form.formState.isSubmitting
+	const isLoading = form.formState.isLoading || form.formState.isSubmitting;
 
 	const onSubmit: SubmitHandler<TBagFormValues> = async (
 		values: TBagFormValues
@@ -49,6 +51,10 @@ const AddToBag = ({
 
 			if (response.status === 200) {
 				toast.success("Successfully Added to Bag.");
+
+				setTimeout(() => {
+					router.refresh();
+				}, 3000)
 			} else {
 				toast.error("Failed to Add.");
 			}
@@ -71,6 +77,12 @@ const AddToBag = ({
 			product_id: product_id,
 			variant_color_id: variant_color_id,
 			variant_size_id: variant_size_id || null,
+		});
+		console.log("Add to Bag Button: ", {
+			user_id: clerk_user_id,
+			product_id,
+			variant_color_id,
+			variant_size_id,
 		});
 	}, [clerk_user_id, product_id, variant_color_id, variant_size_id, reset]);
 
@@ -135,15 +147,22 @@ const AddToBag = ({
 							render={({ field }) => (
 								<FormItem className="hidden">
 									<FormControl>
-										<Input {...field} value={variant_size_id || ''}/>
+										<Input
+											{...field}
+											value={variant_size_id || ""}
+										/>
 									</FormControl>
 								</FormItem>
 							)}
 						/>
 					)}
 
-					<Button type="submit" className="w-full" disabled={isLoading}>
-						{isLoading ? 'Adding to bag' : 'Add to Bag'}
+					<Button
+						type="submit"
+						className="w-full"
+						disabled={isLoading}
+					>
+						{isLoading ? "Adding to bag" : "Add to Bag"}
 					</Button>
 				</form>
 			</Form>

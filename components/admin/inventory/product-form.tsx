@@ -123,7 +123,10 @@ export default function ProductForm({
     } catch (error) {
       console.error("Error while submitting the product:", error);
       toast.error("An error occurred while submitting the product.");
-    }
+    } finally {
+			router.refresh();
+			router.push("/admin/inventory");
+		}
   };
 
 	React.useEffect(() => {

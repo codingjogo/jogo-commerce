@@ -19,6 +19,7 @@ model user {
   clerk_user_id String    @unique
   address       address[]
   bag           bag[]
+  order         order[]
   review        review[]
 }
 
@@ -46,6 +47,7 @@ model product {
   price            Float              @db.Real
   bag              bag[]
   featured_product featured_product[]
+  order_item       order_item[]
   category         category           @relation(fields: [category_id], references: [id], onDelete: Cascade)
   review           review[]
   variant_color    variant_color[]
@@ -72,6 +74,7 @@ model variant_size {
   variant_color_id String?        @db.Uuid
   status           String
   bag              bag[]
+  order_item       order_item[]
   variant_color    variant_color? @relation(fields: [variant_color_id], references: [id], onDelete: Cascade)
 }
 
@@ -89,6 +92,7 @@ model address {
   is_default   Boolean
   user_id      String    @db.Uuid
   user         user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order        order[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -132,6 +136,38 @@ model bag {
   variant_size     variant_size? @relation(fields: [variant_size_id], references: [id], onDelete: Cascade)
 }
 
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model order {
+  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at       DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime?    @db.Timestamptz(6)
+  user_id          String       @db.Uuid
+  status           ORDER_STATUS
+  total_price      Float        @default(0) @db.Real
+  payment_method   String
+  proof_of_payment String[]
+  tracking_number  String?
+  landmark         String?
+  address_id       String       @db.Uuid
+  address          address      @relation(fields: [address_id], references: [id], onDelete: Cascade)
+  user             user         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order_item       order_item[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model order_item {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  order_id        String        @db.Uuid
+  product_id      String        @db.Uuid
+  variant_size_id String?       @db.Uuid
+  quantity        Int
+  price           Float         @db.Real
+  order           order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product         product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant_size    variant_size? @relation(fields: [variant_size_id], references: [id], onDelete: Cascade)
+}
+
 /// This enum is commented in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 enum COLOR_SIZES {
   XS
@@ -153,4 +189,12 @@ enum SIZE_STATUS {
   IN_STOCK
   LOW_STOCK
   OUT_OF_STOCK
+}
+
+enum ORDER_STATUS {
+  PENDING
+  PROCESSING
+  SHIPPED
+  COMPLETED
+  CANCELLED
 }

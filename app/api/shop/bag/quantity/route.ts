@@ -2,7 +2,11 @@ import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export const PATCH = async (req: Request) => {
-  const {clerk_user_id, bag_id, quantity, method } = await req.json();
+  const {searchParams} = new URL(req.url)
+  const clerk_user_id = searchParams.get('clerk_user_id');
+  const bag_id = searchParams.get('bag_id');
+  const quantity = Number(searchParams.get('quantity'));
+  const method = searchParams.get('method');
 
     if (!quantity) {
       return new NextResponse("QUANTITY_NOT_FOUND_SHOP_BAG_UPDATE_QUANTITY_PATCH_ERROR", {

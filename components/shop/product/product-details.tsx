@@ -98,9 +98,8 @@ export default function ProductDetails({
 
 	useEffect(() => {
 		setSelectedColorId(newVariant?.id || "");
-		console.log("bagItems:", {
-			bagItems,
-			isBagItemExist,
+		console.log("selectedSizeId:", {
+			selectedSizeId
 		});
 	}, [
 		userId,
