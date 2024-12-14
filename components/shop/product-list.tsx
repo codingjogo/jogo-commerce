@@ -27,7 +27,7 @@ export function ProductList({ query, category }: { query: string; category: stri
         const response = await axios.get('/api/shop', {
           params: { query, category, q:query },
         });
-        setProducts(response.data.products);
+        setProducts(response.data);
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('Failed to load products. Please try again later.');
