@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/db"; // Ensure the Prisma client is properly configured
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   try {
     // Parse query parameters
     const { searchParams } = new URL(req.url);
