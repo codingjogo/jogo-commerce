@@ -96,6 +96,8 @@ const CheckoutForm = ({
 		toast.success("Successfully Place Order!");
 	};
 
+	const isSubmitted = form.formState.isSubmitted
+
 	const onError = (errors: FieldErrors<TOrderFormValues>): void => {
 		console.log("errors while submitting form: ", errors);
 	};
@@ -124,6 +126,24 @@ const CheckoutForm = ({
 		);
 		setSubtotal(newSubtotal);
 	}, [bagItems]);
+
+	if (isSubmitted) {
+		return (
+			<div className="h-screen flex items-center justify-center">
+				<Card className="shadow-xl">
+					<CardContent className="p-6 flex flex-col items-center justify-center">
+						<h1>Your place order was successful</h1>
+						<p className="mb-4">You may go back to shop!</p>
+						<Button type="button" asChild>
+							<Link href={'/shop'}>
+								Go Shop!
+							</Link>
+						</Button>
+					</CardContent>
+				</Card>
+			</div>
+		)
+	}
 
 	return (
 		<>
