@@ -2,13 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { Prisma } from "@prisma/client";
-import { useForm, useWatch } from "react-hook-form";
+import { FieldErrors, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-	ORDER_STATUS,
-	orderFormSchema,
-	TOrderFormValues,
-} from "@/lib/schemas/orderSchemas";
+import { orderFormSchema, TOrderFormValues } from "@/lib/schemas/orderSchemas";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
@@ -22,6 +18,7 @@ import BPI from "@/public/payment-methods/bpi.jpg";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -46,6 +43,7 @@ import {
 import Link from "next/link";
 import { AlertCircle, ChevronLeftIcon, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { Input } from "@/components/ui/input";
 
 const CheckoutForm = ({
 	bagItems,
@@ -65,28 +63,29 @@ const CheckoutForm = ({
 	}>;
 }) => {
 	const [subtotal, setSubtotal] = useState(0);
-	const [images, setImages] = useState<string[]>([]); // Local state for previews
-	const shippingFee = 100; // Example fixed shipping fee
+	const [images, setImages] = useState<string[]>([]);
+	const shippingFee = 100;
 
 	const form = useForm<TOrderFormValues>({
 		resolver: zodResolver(orderFormSchema),
 		defaultValues: {
-			id: undefined,
 			user_id: address.user_id,
-			status: "PENDING" as ORDER_STATUS,
-			total_price: 0,
 			payment_method: "",
-			proof_of_payment: ['geub1n4dcz0a8pag4ry7'],
-			tracking_number: "",
+			proof_of_payment: [],
 			landmark: "",
 			address_id: address.id,
 		},
 	});
 
+	const isLoading = form.formState.isLoading || form.formState.isSubmitting;
+
 	const watchPaymentMethod = useWatch({
 		control: form.control,
 		name: "payment_method",
 	});
+
+	const watched = form.watch();
+	console.log("watched", watched);
 
 	const onSubmit = async (values: TOrderFormValues) => {
 		const response = await axios.post("/api/shop/checkout", values);
@@ -95,6 +94,10 @@ const CheckoutForm = ({
 			throw new Error("Error Placing Order");
 		}
 		toast.success("Successfully Place Order!");
+	};
+
+	const onError = (errors: FieldErrors<TOrderFormValues>): void => {
+		console.log("errors while submitting form: ", errors);
 	};
 
 	const handleUploadSuccess = (
@@ -130,7 +133,7 @@ const CheckoutForm = ({
 				</Link>
 			</Button>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)}>
+				<form onSubmit={form.handleSubmit(onSubmit, onError)}>
 					<div className="md:col-span-2 space-y-8">
 						{/* -------------------- */}
 						{/* Shipping Form */}
@@ -169,6 +172,30 @@ const CheckoutForm = ({
 								</DialogHeader>
 							</DialogContent>
 						</Dialog>
+
+						{/* Landmark Input */}
+						<div>
+							<FormField
+								control={form.control}
+								name="landmark"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Landmark</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="Sa tindahan ni aling nena"
+												{...field}
+											/>
+										</FormControl>
+										<FormDescription>
+											Rider will easily be able to find
+											your home.
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						{/* End of Shipping Form */}
 						{/* -------------------- */}
@@ -420,7 +447,9 @@ const CheckoutForm = ({
 																				)
 																		);
 																	}}
-																	variant={'destructive'}
+																	variant={
+																		"destructive"
+																	}
 																	className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
 																>
 																	<Trash2 />
@@ -564,7 +593,15 @@ const CheckoutForm = ({
 										</span>
 									</div>
 								</div>
-								<Button className="w-full">Place Order</Button>
+								<Button
+									className="w-full"
+									type="submit"
+									disabled={isLoading}
+								>
+									{isLoading
+										? "Please wait..."
+										: "Place Order"}
+								</Button>
 							</div>
 						</div>
 					</div>
