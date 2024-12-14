@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 
-export const PUT = async (req: Response) => {
+export const PUT = async (req: Request) => {
   const {searchParams} = new URL(req.url);
   const bagItemId = searchParams.get('bagItemId');
   const quantity = Number(searchParams.get('quantity'));
