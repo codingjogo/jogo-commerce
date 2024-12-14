@@ -84,6 +84,11 @@ const CheckoutForm = ({
 		name: "payment_method",
 	});
 
+	const watchProofOfPayment = useWatch({
+		control: form.control,
+		name: "proof_of_payment",
+	});
+
 	const watched = form.watch();
 	console.log("watched", watched);
 
@@ -230,7 +235,7 @@ const CheckoutForm = ({
 							<div className="space-y-6">
 								<div>
 									<h3 className="text-lg font-semibold mb-2">
-										Step 1: Select Your Payment Method
+									Step 1: <span className="text-red-500">(required)</span> Select Your Payment Method
 									</h3>
 
 									<FormField
@@ -313,7 +318,7 @@ const CheckoutForm = ({
 
 										<div>
 											<h3 className="text-lg font-semibold mb-2">
-												Step 3: Upload Your Payment
+												Step 3: <span className="text-red-500">(required)</span> Upload Your Payment
 												Receipt
 											</h3>
 											<ol className="list-decimal list-inside space-y-2 mb-4">
@@ -391,7 +396,7 @@ const CheckoutForm = ({
 													</div>
 												</li>
 												<li>
-													Upload the receipt
+													<span className="text-red-500">(required)</span> Upload the receipt
 													screenshot in the section
 													below.
 												</li>
@@ -616,7 +621,7 @@ const CheckoutForm = ({
 								<Button
 									className="w-full"
 									type="submit"
-									disabled={isLoading}
+									disabled={isLoading || !watchPaymentMethod || watchProofOfPayment.length === 0}
 								>
 									{isLoading
 										? "Please wait..."
